@@ -74,6 +74,8 @@ class State_s:
             res = -1
             for i in self.next:
                 temp = i.Minimax()
+                #if temp == 1:
+                #    return 1
                 if temp > res:
                     res = temp
             return res
@@ -82,13 +84,43 @@ class State_s:
             res = 1
             for i in self.next:
                 temp = i.Minimax()
+                #if temp == -1:
+                #    return -1
                 if temp < res:
                     res = temp
             return res
+        
+    def AlphaBeta(self,alpha = -2,beta = 2):
+        if self.n_2 + self.n_4 == 0:
+            return 1-(self.bank%2 + (self.p+self.n_odd)%2)
+        if self.level%2 == 0:
+            #Maximizer turn
+            val = -2
+            for i in self.next:
+                temp = i.AlphaBeta(alpha,beta)
+                val = max(val,temp)
+                alpha = max(alpha,val)
+                if alpha >= beta:
+                    break
+            return val    
+        else:
+            #Maximizer turn
+            val = 2
+            for i in self.next:
+                temp = i.AlphaBeta(alpha,beta)
+                val = min(val,temp)
+                alpha = min(beta,val)
+                if alpha >= beta:
+                    break
+            return val    
+            
+            
+    
                 
             
 
-A = State_s(0,1,1,1,0,0)
+A = State_s(0,2,2,1,0,0)
 #A.pri()
-print(A.Minimax())
+#print(A.Minimax())
+print(A.AlphaBeta())
 # Ma
