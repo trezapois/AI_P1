@@ -1,7 +1,7 @@
 class State_s:
-    def __init__(self,n_odd,n_2,n_4,b,level):
-        #self.points = 0
+    def __init__(self,n_odd,n_2,n_4,b,p,level):
         self.bank = b
+        self.p = p
         self.n_odd = n_odd
         self.n_2 = n_2
         self.n_4 = n_4
@@ -31,33 +31,64 @@ class State_s:
         
     def rm_odd(self):
         if self.n_odd > 0:
-            return State_s(self.n_odd - 1, self.n_2, self.n_4,self.bank,self.level+1)
+            return State_s(self.n_odd - 1, self.n_2, self.n_4,self.bank,self.p+1,self.level+1)
         return None
+    
+    """def rm_3(self):
+        if self.n_odd > 0:
+            return State_s(self.n_odd - 1, self.n_2, self.n_4,self.bank,self.p+3,self.level+1)
+        return None"""
     
     def rm_2(self):
         if self.n_2 > 0:
-            return State_s(self.n_odd, self.n_2 - 1, self.n_4,self.bank,self.level+1)
+            return State_s(self.n_odd, self.n_2 - 1, self.n_4,self.bank,self.p+2,self.level+1)
         return None
     
     def rm_4(self):
         if self.n_4 > 0:
-            return State_s(self.n_odd, self.n_2, self.n_4 - 1,self.bank,self.level+1)
+            return State_s(self.n_odd, self.n_2, self.n_4 - 1,self.bank,self.p+4,self.level+1)
         return None
     
     def split_2(self):
         if self.n_2 > 0:
-            return State_s(self.n_odd + 2, self.n_2 - 1, self.n_4, self.bank + 1,self.level+1)
+            return State_s(self.n_odd + 2, self.n_2 - 1, self.n_4, self.bank + 1, self.p,self.level+1)
         return None
     
     def split_4(self):
         if self.n_4 > 0:
-            return State_s(self.n_odd, self.n_2 + 2, self.n_4 - 1, self.bank,self.level+1)
+            return State_s(self.n_odd, self.n_2 + 2, self.n_4 - 1, self.bank,self.p+2,self.level+1)
         return None
     
-    def p(self):
+    def pri(self):
         print("--"*self.level + str(self.n_odd) +"-"+ str(self.n_2) +"-"+ str(self.n_4) + "-" + str(self.bank))
         for i in self.next:
-            i.p()
+            i.pri()
+            
+            
+    def Minimax(self):
+        #Maximizer goes first
+        if self.n_2 + self.n_4 == 0:
+            return 1-(self.bank%2 + (self.p+self.n_odd)%2)
+        if self.level%2 == 0:
+            #Maximizer turn
+            res = -1
+            for i in self.next:
+                temp = i.Minimax()
+                if temp > res:
+                    res = temp
+            return res
+        else:
+            #Minimizer
+            res = 1
+            for i in self.next:
+                temp = i.Minimax()
+                if temp < res:
+                    res = temp
+            return res
+                
+            
 
-A = State_s(0,1,1,0,0)
-A.p()
+A = State_s(0,1,1,1,0,0)
+#A.pri()
+print(A.Minimax())
+# Ma
