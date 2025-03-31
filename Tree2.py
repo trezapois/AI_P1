@@ -99,6 +99,8 @@ class State_s:
             for i in self.next:
                 temp = i.AlphaBeta(alpha,beta)
                 val = max(val,temp)
+                if val == 1:
+                    return 1
                 alpha = max(alpha,val)
                 if alpha >= beta:
                     break
@@ -109,7 +111,9 @@ class State_s:
             for i in self.next:
                 temp = i.AlphaBeta(alpha,beta)
                 val = min(val,temp)
-                alpha = min(beta,val)
+                if val == -1:
+                    return -1
+                beta = min(beta,val)
                 if alpha >= beta:
                     break
             return val    
@@ -119,8 +123,8 @@ class State_s:
                 
             
 
-A = State_s(0,2,2,1,0,0)
+A = State_s(1,3,0,0,0,0)
 #A.pri()
-#print(A.Minimax())
+print(A.Minimax())
 print(A.AlphaBeta())
 # Ma
