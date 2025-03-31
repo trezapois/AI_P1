@@ -38,26 +38,32 @@ class State_s:
             return State_s(self.n_odd, self.n_2 + 2, self.n_4 - 1, self.bank,self.p+2,self.level+1)
         return None 
     
-    def generate_next_states(self):
-        if self.n_2 + self.n_odd + self.n_4 > 0:
+    def generate_next_states(self,stop = -1):
+        if self.n_2 + self.n_odd + self.n_4 > 0 and stop != 0:
             n = self.rm_odd()
             if n != None:
+                n.generate_next_states(stop - 1)
                 self.next.append(n)
+                
                 
             n = self.rm_2()
             if n != None:
+                n.generate_next_states(stop - 1)
                 self.next.append(n)
                 
             n = self.rm_4()
             if n != None:
+                n.generate_next_states(stop - 1)
                 self.next.append(n)
                 
             n = self.split_2()
             if n != None:
+                n.generate_next_states(stop - 1)
                 self.next.append(n)
                 
             n = self.split_4()
             if n != None:
+                n.generate_next_states(stop - 1)
                 self.next.append(n)
     
                 
@@ -80,7 +86,38 @@ class State_s:
         if(self.n_odd)%2 == 0 and (self.n_2 + self.n_4) >= 2:
             x += 1
         return 1-((self.bank+self.n_2+self.n_4 + x)%2 + (self.p+self.n_odd)%2)
-        
+    
+    def Minimax(self):
+        if self.n_2 + self.n_4 + self.n_odd == 0:
+            return 1-(self.bank%2 + (self.p)%2)
+        if self.level%2 == 0:
+            #Maximizer turn
+            val = -2
+            for i in range(5):
+                next = self.advance(i)
+                if next is not None:
+                    temp = next.AlphaBeta(alpha,beta)
+                    val = max(val,temp)
+                    if val == 1:
+                        return 1
+                    alpha = max(alpha,val)
+                    if alpha >= beta:
+                        break
+            return val    
+        else:
+            #Minimizer turn
+            val = 2
+            for i in range(5):
+                next = self.advance(i)
+                if next is not None:
+                    temp = next.AlphaBeta(alpha,beta)
+                    val = min(val,temp)
+                    if val == -1:
+                        return -1
+                    beta = min(beta,val)
+                    if alpha >= beta:
+                        break
+            return val        
     
         
     

@@ -1,5 +1,5 @@
 class State_s:
-    def __init__(self,n_odd,n_2,n_4,b,p,level):
+    def __init__(self,n_odd,n_2,n_4,b,p,level,stop = -1):
         self.bank = b
         self.p = p
         self.n_odd = n_odd
@@ -7,7 +7,10 @@ class State_s:
         self.n_4 = n_4
         self.next = []
         self.level = level
+        self.stop = stop
         if n_2 + n_odd + n_4 > 0:
+            if stop == 0:
+                return
             n = self.rm_odd()
             if n != None:
                 self.next.append(n)
@@ -31,7 +34,7 @@ class State_s:
         
     def rm_odd(self):
         if self.n_odd > 0:
-            return State_s(self.n_odd - 1, self.n_2, self.n_4,self.bank,self.p+1,self.level+1)
+            return State_s(self.n_odd - 1, self.n_2, self.n_4,self.bank,self.p+1,self.level+1,self.stop-1)
         return None
     
     """def rm_3(self):
@@ -41,22 +44,22 @@ class State_s:
     
     def rm_2(self):
         if self.n_2 > 0:
-            return State_s(self.n_odd, self.n_2 - 1, self.n_4,self.bank,self.p+2,self.level+1)
+            return State_s(self.n_odd, self.n_2 - 1, self.n_4,self.bank,self.p+2,self.level+1,self.stop-1)
         return None
     
     def rm_4(self):
         if self.n_4 > 0:
-            return State_s(self.n_odd, self.n_2, self.n_4 - 1,self.bank,self.p+4,self.level+1)
+            return State_s(self.n_odd, self.n_2, self.n_4 - 1,self.bank,self.p+4,self.level+1,self.stop-1)
         return None
     
     def split_2(self):
         if self.n_2 > 0:
-            return State_s(self.n_odd + 2, self.n_2 - 1, self.n_4, self.bank + 1, self.p,self.level+1)
+            return State_s(self.n_odd + 2, self.n_2 - 1, self.n_4, self.bank + 1, self.p,self.level+1,self.stop-1)
         return None
     
     def split_4(self):
         if self.n_4 > 0:
-            return State_s(self.n_odd, self.n_2 + 2, self.n_4 - 1, self.bank,self.p+2,self.level+1)
+            return State_s(self.n_odd, self.n_2 + 2, self.n_4 - 1, self.bank,self.p+2,self.level+1,self.stop-1)
         return None
     
     def pri(self):
@@ -91,7 +94,7 @@ class State_s:
             return res
         
     def AlphaBeta(self,alpha = -2,beta = 2):
-        if self.n_2 + self.n_4 == 0:
+        if self.n_2 + self.n_4 + self.n_odd == 0:
             return 1-(self.bank%2 + (self.p+self.n_odd)%2)
         if self.level%2 == 0:
             #Maximizer turn
