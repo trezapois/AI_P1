@@ -154,9 +154,48 @@ class State_s:
             self.hVal = val
             return val    
 """
+    def AlphaBetaNply(self,n_ply = 1,alpha = -2,beta = 2):
+        if self.n_2 + self.n_4 + self.n_odd == 0:
+            return 1-(self.bank%2 + (self.p)%2)
+        if self.level%2 == 0:
+            #Maximizer turn
+            val = -2
+            for i in range(5):
+                next = self.advance(i)
+                if next is not None:
+                    if n_ply > 0:
+                        temp = next.AlphaBetaNply(n_ply - 1)
+                    else:
+                        temp = next.heuristic()
+                        #print("1"*next.n_odd + "2"*next.n_2 +"4"*next.n_4 + " b: "+str(next.bank) + " p: " +str(self.p)+": " + str(temp) + "|"+ str(next.AlphaBeta()))
+                    val = max(val,temp)
+                    #if val == 1:
+                    #    return 1
+                    alpha = max(alpha,val)
+                    if alpha >= beta:
+                        break
+            return val    
+        else:
+            #Minimizer turn
+            val = 2
+            for i in range(5):
+                next = self.advance(i)
+                if next is not None:
+                    if n_ply > 0:
+                        temp = next.AlphaBetaNply(n_ply-1)
+                    else:
+                        
+                        temp = next.heuristic()
+                        #print("1"*next.n_odd + "2"*next.n_2 +"4"*next.n_4 + " b: "+str(next.bank) + " p: " +str(self.p)+": " + str(temp) + "|"+ str(next.AlphaBeta()))
+                    val = min(val,temp)
+                    #if val == -1:
+                    #    return -1
+                    beta = min(beta,val)
+                    if alpha >= beta:
+                        break
+            return val    
     
-    
-    def AlphaBeta(self,n_ply = 2,alpha = -2,beta = 2):
+    def AlphaBeta(self,alpha = -2,beta = 2):
         if self.n_2 + self.n_4 + self.n_odd == 0:
             return 1-(self.bank%2 + (self.p)%2)
         if self.level%2 == 0:
@@ -166,7 +205,7 @@ class State_s:
                 next = self.advance(i)
                 if next is not None:
                     #if n_ply > 0:
-                    temp = next.AlphaBeta(n_ply - 1)
+                    temp = next.AlphaBeta()
                     #else:
                     #    temp = next.heuristic()
                     val = max(val,temp)
@@ -183,7 +222,7 @@ class State_s:
                 next = self.advance(i)
                 if next is not None:
                     #if n_ply > 0:
-                    temp = next.AlphaBeta(n_ply-1)
+                    temp = next.AlphaBeta()
                     #else:
                     #    temp = next.heuristic()
                     val = min(val,temp)
@@ -209,16 +248,17 @@ class State_s:
                 x+=1
             return 1-((self.bank+self.n_2+self.n_4 + x)%2 + (self.p+self.n_odd)%2)
             
-    
-for i in range(2):
-    for j in range(2):
-        for k in range(4):
-            A = State_s(i,j,k,1,0,0)
-            #A.generate_next_states()
-            print("1"*i + "2"*j +"4"*k + " : " + str(A.AlphaBeta()) + " | " + str(A.heuristic()))
-            
-            """
 
-A = State_s(1,0,1,1,0,0)
+for i in range(2):
+    for j in range(3):
+        for k in range(3):
+            A = State_s(i,j,k,2,0,0)
+            #A.generate_next_states()
+            print("1"*i + "2"*j +"4"*k + " : " + str(A.AlphaBeta()) + " | " + str(A.AlphaBetaNply()))
+            
+            
+"""
+A = State_s(0,0,2,1,0,0)
 print(A.AlphaBeta())
+print(A.AlphaBetaNply())
 print(A.heuristic())"""
