@@ -394,7 +394,9 @@ class GameGUI(tk.Tk):
         except ValueError:
             messagebox.showerror("Error", "Invalid input. Please enter valid numbers.")
             return
-
+        if(length < 15 or length > 20):
+            messagebox.showerror("Error", "Invalid input. Please enter valid numbers.")
+            return
         x1, x2, x3, x4 = 0, 0, 0, 0
         for _ in range(length):
             x = random.randint(0, 3)
