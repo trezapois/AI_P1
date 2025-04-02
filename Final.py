@@ -1,3 +1,8 @@
+import random
+from time import sleep
+import tkinter as tk
+from tkinter import messagebox
+
 class State_s:
     def __init__(self,n_1,n_3,n_2,n_4,b,p,level):
         self.bank = b
@@ -236,26 +241,50 @@ class State_s:
             return 1-((self.bank+self.n_2+self.n_4 + x)%2 + (self.p+self.n_1 + self.n_3)%2)
     
     def print(self):
-        print("1"*self.n_1 + "2"*self.n_2 + "3"*self.n_3 +"4"*self.n_4 + " bank: " + str(self.bank) + " points: " + str(self.p))
+        return "1"*self.n_1 + "2"*self.n_2 + "3"*self.n_3 +"4"*self.n_4 + " bank: " + str(self.bank) + " points: " + str(self.p)
     
     
-def game(state, AI_first):
+def game():
+    len = int(input("What length for the string ?"))
+    AI_first = input("Put 0 if you want the AI to start") == "0"
+    Minimax = input("Put 0 if you want to use Minimax else it will use Alphabeta") == "0"
+    x1 = 0
+    x2 = 0
+    x3 = 0
+    x4 = 0
+    for i in range(len):
+        x = random.randint(0,3)
+        if x == 0:
+            x1 +=1
+        if x == 1:
+            x2 += 1
+        if x == 2:
+            x3 +=1
+        if x == 3:
+            x4 += 1
+    state = State_s(x1,x3,x2,x4,0,0,0)
     state.print()
     if AI_first:
-        state.AlphaBetaNply()
-        print(state.chosen)
+        if Minimax:
+            state.Minimax()
+        else:
+            state.AlphaBetaNply()
+        #print(state.chosen)
         state = state.advance(0)
         state.print()
     while state.n_1 + state.n_2 + state.n_3 + state.n_4 > 0:
-        print(state.heuristic())
-        c = int(input("what action : "))
+        #print(state.heuristic())
+        c = int(input("what action : \n 0 to remove a 1, 1 to remove a 3 ,2 to remove a 2\n 3 to remove a 4, 4 to split a 2 and 5 to split a 4"))
         while c == None or c < 0 or c > 5 or state.advance(c) == None:
-            c = int(input("what action : "))
+            c = int(input("what action : \n 0 to remove a 1, 1 to remove a 3 ,2 to remove a 2\n 3 to remove a 4, 4 to split a 2 and 5 to split a 4"))
         state = state.advance(c)
         state.print()
         if state.n_1 + state.n_2 + state.n_3 + state.n_4 == 0:
             break
-        state.AlphaBetaNply()
+        if Minimax:
+            state.Minimax()
+        else:
+            state.AlphaBetaNply()        
         state = state.advance(state.chosen)
         state.print()
     p1 = "You"
@@ -283,12 +312,12 @@ def game(state, AI_first):
     """        
             
 
-A = State_s(1,1,2,2,0,0,0)
-print(A.AlphaBeta())
+#A = State_s(1,1,2,2,0,0,0)
+#print(A.AlphaBeta())
 #print(A.AlphaBetaNply())
 #print(A.Minimax())
-print(A.heuristic())
-game(A,True)
+#print(A.heuristic())
+#game()
 
 """while A.n_1 + A.n_2 + A.n_3 + A.n_4 > 0:
     A = A.advance(A.chosen)
@@ -301,3 +330,148 @@ game(A,True)
         break
     print("1"*A.n_1 + "2"*A.n_2 + "3"*A.n_3 +"4"*A.n_4 + " bank: " + str(A.bank) + " points: " + str(A.p))
     A.AlphaBetaNply()"""
+    
+class GameGUI(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("Game")
+        self.geometry("600x400")
+
+        self.len_label = tk.Label(self, text="Enter length of the string:")
+        self.len_label.pack()
+
+        self.len_entry = tk.Entry(self)
+        self.len_entry.pack()
+
+        self.ai_label = tk.Label(self, text="AI starts? (0 for Yes, 1 for No):")
+        self.ai_label.pack()
+
+        self.ai_entry = tk.Entry(self)
+        self.ai_entry.pack()
+
+        self.algo_label = tk.Label(self, text="Choose algorithm (0 for Minimax, 1 for AlphaBeta):")
+        self.algo_label.pack()
+
+        self.algo_entry = tk.Entry(self)
+        self.algo_entry.pack()
+
+        self.start_button = tk.Button(self, text="Start Game", command=self.start_game)
+        self.start_button.pack()
+
+        self.result_label = tk.Label(self, text="")
+        self.result_label.pack()
+
+        self.action_frame = tk.Frame(self)
+        self.action_label = tk.Label(self.action_frame, text="Choose an action:")
+        self.action_label.pack()
+
+        self.action_buttons = []
+        self.create_action_buttons()
+
+        self.state_label = tk.Label(self, text="")
+        self.state_label.pack()
+
+        self.current_state = None
+        self.ai_first = False
+        self.use_minimax = False
+
+    def create_action_buttons(self):
+         actions = [
+            "Remove a 1", "Remove a 3", "Remove a 2",
+            "Remove a 4", "Split a 2", "Split a 4"
+        ]
+         for i, action in enumerate(actions):
+            btn = tk.Button(self.action_frame, text=action, command=lambda idx=i: self.player_move(idx))
+            btn.pack(side=tk.LEFT)
+            self.action_buttons.append(btn)
+
+    def start_game(self):
+        try:
+            length = int(self.len_entry.get())
+            self.ai_first = self.ai_entry.get() == "0"
+            self.use_minimax = self.algo_entry.get() == "0"
+        except ValueError:
+            messagebox.showerror("Error", "Invalid input. Please enter valid numbers.")
+            return
+
+        x1, x2, x3, x4 = 0, 0, 0, 0
+        for _ in range(length):
+            x = random.randint(0, 3)
+            if x == 0:
+                x1 += 1
+            elif x == 1:
+                x2 += 1
+            elif x == 2:
+                x3 += 1
+            elif x == 3:
+                x4 += 1
+
+        self.current_state = State_s(x1, x3, x2, x4, 0, 0, 0)
+        self.update_state_label()
+
+        if self.ai_first:
+            self.ai_turn()
+        else:
+            self.action_frame.pack()
+
+    def ai_turn(self):
+        self.update_state_label()
+        if self.current_state.n_1 + self.current_state.n_2 + self.current_state.n_3 + self.current_state.n_4 == 0:
+            self.end_game()
+            return
+
+        if self.use_minimax:
+            self.current_state.Minimax()
+        else:
+            self.current_state.AlphaBetaNply()
+
+        self.current_state = self.current_state.advance(self.current_state.chosen)
+        self.update_state_label()
+
+        if self.current_state.n_1 + self.current_state.n_2 + self.current_state.n_3 + self.current_state.n_4 == 0:
+            self.end_game()
+        else:
+            self.action_frame.pack()
+
+    def player_move(self, action):
+        next_state = self.current_state.advance(action)
+        if next_state is None:
+            messagebox.showerror("Error", "Invalid move.")
+            return
+
+        self.current_state = next_state
+        self.update_state_label()
+        self.action_frame.pack_forget()
+
+        if self.current_state.n_1 + self.current_state.n_2 + self.current_state.n_3 + self.current_state.n_4 == 0:
+            self.end_game()
+        else:
+            self.ai_turn()
+
+    def update_state_label(self):
+         self.state_label.config(text=str(self.current_state.print()))
+
+    def end_game(self):
+        self.action_frame.pack_forget()
+        p1 = "You"
+        p2 = "The AI"
+        if self.ai_first:
+            p1, p2 = p2, p1
+
+        winner = ""
+        if (self.current_state.bank % 2 == 0):
+            if self.current_state.p % 2 == 0:
+                winner = p1 + " won"
+            else:
+                winner = "It's a tie"
+        else:
+            if self.current_state.p % 2 == 0:
+                winner = "It's a tie"
+            else:
+                winner = p2 + " won"
+        self.result_label.config(text=winner)
+
+if __name__ == "__main__":
+    game_window = GameGUI()
+    game_window.mainloop()
