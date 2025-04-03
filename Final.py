@@ -1,5 +1,5 @@
 import random
-from time import sleep
+import time
 import tkinter as tk
 from tkinter import messagebox
 
@@ -375,6 +375,9 @@ class GameGUI(tk.Tk):
         self.current_state = None
         self.ai_first = False
         self.use_minimax = False
+        self.node_visited = 0
+        self.time = 0
+        
 
     def create_action_buttons(self):
          actions = [
@@ -422,13 +425,16 @@ class GameGUI(tk.Tk):
         if self.current_state.n_1 + self.current_state.n_2 + self.current_state.n_3 + self.current_state.n_4 == 0:
             self.end_game()
             return
-
+        begin = time.time() 
         if self.use_minimax:
             self.current_state.Minimax()
         else:
             self.current_state.AlphaBetaNply()
 
         self.current_state = self.current_state.advance(self.current_state.chosen)
+        end = time.time()
+        self.time = end - begin
+        #self.node_visited 
         self.update_state_label()
 
         if self.current_state.n_1 + self.current_state.n_2 + self.current_state.n_3 + self.current_state.n_4 == 0:
@@ -443,6 +449,7 @@ class GameGUI(tk.Tk):
             return
 
         self.current_state = next_state
+        self.node_visited += 1
         self.update_state_label()
         self.action_frame.pack_forget()
 
@@ -452,7 +459,7 @@ class GameGUI(tk.Tk):
             self.ai_turn()
 
     def update_state_label(self):
-         self.state_label.config(text=str(self.current_state.print()))
+         self.state_label.config(text=str(self.current_state.print()+ "\n time to find the move : " + str(self.time)))
 
     def end_game(self):
         self.action_frame.pack_forget()
